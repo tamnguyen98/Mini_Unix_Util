@@ -16,9 +16,6 @@
 const char *tmp_file_name = "CS460_tMp";
 
 void parse_file(FILE *fp, char *look_for, char *replace_with);
-void strcpy_fix (char *to, char *from);
-
-
 
 int main(int argc, char **argv)
 {
@@ -34,7 +31,9 @@ int main(int argc, char **argv)
 
     for (int i = 3; i < argc; i++)
     {
-        strcpy_fix(file_name, argv[i]);
+        // For some reason, we need to copy argv[i] to a var even though we're only using it twice
+        // because if we don't the rename get messed up.
+        strcpy(file_name, argv[i]);
         FILE *fp;
 
         if ((fp = fopen(file_name, "r+")) == NULL)
@@ -48,7 +47,7 @@ int main(int argc, char **argv)
         parse_file(fp, look_for, replace_with);
         fclose(fp);
 
-        if (rename(tmp_file_name, file_name) != 0)
+        if (rename(tmp_file_name, argv[i]) != 0)
         {
             // If there is an error renaming the file.
             fprintf(stderr, "%s\n", strerror(errno));
@@ -72,7 +71,7 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
         if (strlen(lineptr) >= strlen (look_for))
         {
             // Split the line by space.
-            char *chunk = strtok(lineptr, " ");
+            char *chunk = strtok(strdup(lineptr), " ");
             while(chunk != NULL)
             {
                 int chunk_len = strlen(chunk);
@@ -97,15 +96,4 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
         }
     }
     fclose(tmp_file);
-}
-
-
-// Had to use this function instead of strcpy, because strcpy (for some reason)
-// keep changing argv[3] value once it get process by the parse function above
-void strcpy_fix (char *to, char *from)
-{
-    int i;
-    for (i = 0; from[i] != '\0' && from[i] != '\n'; i++)
-        to[i] = from[i];
-    to[i] = '\0';
 }

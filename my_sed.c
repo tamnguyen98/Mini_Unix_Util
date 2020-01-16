@@ -35,13 +35,17 @@ int main(int argc, char **argv)
         // because if we don't the rename get messed up.
         strcpy(file_name, argv[i]);
         FILE *fp;
-
+        printf("test\n");
         if ((fp = fopen(file_name, "r+")) == NULL)
         {
             // If there is an error opening file
+
+            //PROBLEM: getting segfault when fie DNE
             fprintf(stderr, "%s: %s\n", strerror(errno), file_name);
             fclose(fp);
-            return errno;
+            if (i == argc-1)
+                return errno;
+            continue;
         }
 
         parse_file(fp, look_for, replace_with);
@@ -71,7 +75,8 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
         if (strlen(lineptr) >= strlen (look_for))
         {
             // Split the line by space.
-            char *chunk = strtok(strdup(lineptr), " ");
+            char *dupe_line = strdup(lineptr);
+            char *chunk = strtok(dupe_line, " ");
             while(chunk != NULL)
             {
                 int chunk_len = strlen(chunk);
@@ -93,6 +98,7 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
                 
                 chunk = strtok(NULL, " ");
             }
+            free(dupe_line);
         }
     }
     fclose(tmp_file);

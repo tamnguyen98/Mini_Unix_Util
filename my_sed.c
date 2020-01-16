@@ -6,13 +6,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-void parse_file(FILE *fp);
+void parse_file(FILE *fp, char *look_for, char *replace_with);
 
-// Using globals since it's static
-char *look_for;
-char *replace_with;
-int lfLen = 0;
-int rwLen = 0;
 
 int main(int argc, char **argv)
 {
@@ -22,11 +17,9 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    look_for = argv[1];
-    replace_with = argv[2];
+    char *look_for = argv[1];
+    char *replace_with = argv[2];
 
-    lfLen = strlen(look_for);
-    rwLen = strlen(replace_with);
 
     printf("Replace (%s) with (%s)\n", look_for, replace_with);
 
@@ -37,13 +30,22 @@ int main(int argc, char **argv)
         fclose(fp);
         return errno;
     }
-    parse_file(fp);
+
+    parse_file(fp, look_for, replace_with);
     fclose(fp);
+
+    if (rename("CS460_tMp", argv[3]) != 0)
+    {
+        fprintf(stderr, "%s\n", strerror(errno));
+        return errno;
+    }
 }
 
-void parse_file(FILE *fp)
+void parse_file(FILE *fp, char *look_for, char *replace_with)
 {
     char *lineptr;
+    int lfLen = strlen(look_for);
+    char rwLen = strlen(replace_with);
     size_t n;
     ssize_t read_count;
     FILE *tmp_file = fopen("CS460_tMp", "w");
@@ -65,7 +67,10 @@ void parse_file(FILE *fp)
                 }
                 else
                     fputs(chunk, tmp_file);
-                fputs(" ", tmp_file);
+
+                if (chunk[chunk_len-1] != '\n')
+                    fputs(" ", tmp_file);
+                
                 chunk = strtok(NULL, " ");
             }
         }

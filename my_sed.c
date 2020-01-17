@@ -65,7 +65,6 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
 {
     char *lineptr;
     int lfLen = strlen(look_for);
-    char rwLen = strlen(replace_with);
     size_t n;
     ssize_t read_count;
     FILE *tmp_file = fopen(tmp_file_name, "w");

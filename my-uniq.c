@@ -28,7 +28,6 @@ void myUniq(char *filepath) {
     char *line2 = NULL;
     size_t length1 = 0;
     size_t length2 = 0;
-    int err = errno;
     ssize_t numRead = 0;
 
     // if the file does not exist print error and terminate program
@@ -70,7 +69,7 @@ void myUniq(char *filepath) {
             }
         }
         // check if getline() returned -1 and set errno
-        if (errno == EINVAL | errno == ENOMEM) {
+        if ((errno == EINVAL) | (errno == ENOMEM)) {
             fprintf(stderr, "%s\n", strerror(errno));
             free(line1); free(line2);
             line1 = line2 = NULL;
@@ -85,7 +84,7 @@ void myUniq(char *filepath) {
     }
 
     // check if getline() returned -1 and set errno
-    if (errno == EINVAL | errno == ENOMEM) {
+    if ((errno == EINVAL) | (errno == ENOMEM)) {
         fprintf(stderr, "%s\n", strerror(errno));
         free(line1); free(line2);
         line1 = line2 = NULL;

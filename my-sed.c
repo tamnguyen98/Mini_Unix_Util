@@ -40,7 +40,7 @@ int main(int argc, char **argv)
                 file” (followed by a newline) and exit with status code 1 immediately." */
 
             fprintf(stderr, "my-sed: cannot open file %s\n", argv[i]);
-            return 1;
+            exit(1);
         }
 
         parse_file(fp, look_for, replace_with);
@@ -51,21 +51,21 @@ int main(int argc, char **argv)
 
 void parse_file(FILE *fp, char *look_for, char *replace_with)
 {
-    char *lineptr;
-    int lfLen = strlen(look_for);
-    int rwLen = strlen(replace_with);
-    size_t n;
-    ssize_t read_count;
+    char *lineptr = NULL;
+    int lookfor_len = strlen(look_for);
+    int repwit_let = strlen(replace_with);
+    size_t n = 0;
+    size_t read_count;
     
-    while ((read_count = getline(&lineptr, &n, fp)) > 0)
+    while ((int)(read_count = getline(&lineptr, &n, fp)) > 0)
     {
-        if (n >= lfLen)
+        if (read_count >= lookfor_len)
         {
-            char * found = strstr(lineptr, look_for);
+            char *found = strstr(lineptr, look_for);
             if (found != NULL)
             {
-                size_t at = found - lineptr; // Get indx of first occurance
-                bool noExtra = !isCharNum(lineptr[at+lfLen]); // check the end of the word if it's a valid character
+                int at = found - lineptr; // Get indx of first occurance
+                bool noExtra = !isCharNum(lineptr[at+lookfor_len]); // check the end of the word if it's a valid character
                 bool containsWord = false;
 
                 if ((at == 0 && noExtra) || (!isCharNum(lineptr[at-1]) && noExtra)) // check if it's just: (example) "* word *"
@@ -76,12 +76,12 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
                 {
                     for (int i = 0, k = 0; i < read_count; )
                     {
-                        if (i >= at && i < at+lfLen) // If the word is in between the range
+                        if (i >= at && i < at+lookfor_len) // If the word is in between the range
                         {
                             printf("%c", replace_with[k]);
                             k++;
-                            if (k == rwLen)
-                                i = at+lfLen;
+                            if (k == repwit_let)
+                                i = at+lookfor_len;
                         }
                         else // not on the word
                         {
@@ -89,11 +89,12 @@ void parse_file(FILE *fp, char *look_for, char *replace_with)
                             i++;
                         }
                     }
+                    break;
                 }
-                break;
             }
         }
     }
+    free(lineptr);
 }
 
 bool isCharNum(char c)

@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     if (argc <= 3)
     {
         fprintf(stderr, "my-sed: find term replace term [file ...]\n");
-        return 1;
+        exit(1);
     }
 
     char *look_for = argv[1];
@@ -46,7 +46,7 @@ int main(int argc, char **argv)
         parse_file(fp, look_for, replace_with);
         fclose(fp);
     }
-    
+    exit(0);
 }
 
 void parse_file(FILE *fp, char *look_for, char *replace_with)
